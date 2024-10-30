@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const taskStartTime = document.getElementById('task-start-time').value;
         const taskEndTime = document.getElementById('task-end-time').value;
 
+        if (!validateTime(taskStartTime, taskEndTime)) {
+            alert('Start time must be before end time.');
+            return;
+        }
+
         if (taskId) {
             updateTask(taskId, taskDate, taskTitle, taskDesc, taskStartTime, taskEndTime);
         } else {
@@ -23,12 +28,30 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('logout-button').addEventListener('click', () => {
         logout();
     });
+
+    document.getElementById('prev-tasks-page').addEventListener('click', () => {
+        if (upcomingTasksPage > 0) {
+            upcomingTasksPage--;
+            renderUpcomingTasks();
+        }
+    });
+
+    document.getElementById('next-tasks-page').addEventListener('click', () => {
+        upcomingTasksPage++;
+        renderUpcomingTasks();
+    });
 });
+
+function validateTime(startTime, endTime) {
+    return startTime < endTime;
+}
 
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let tasks = [];
 let selectedDayElement = null;
+let upcomingTasksPage = 0;
+const tasksPerPage = 5;
 
 const holidays = {
     '2023-01-01': 'New Year\'s Day',
@@ -42,8 +65,14 @@ const holidays = {
 
 function fetchUsername() {
     fetch('php/get_username.php')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Username fetched:', data);
             const welcomeMessage = document.getElementById('welcome-message');
             welcomeMessage.textContent = `Welcome back, ${data.username}, let's check your schedule!`;
         })
@@ -118,14 +147,15 @@ function renderCalendar() {
 
         // Render tasks for the day
         const taskList = document.createElement('ul');
-        tasks.forEach(task => {
-            if (task.date === dateStr) {
-                const taskItem = document.createElement('li');
-                const startTime = formatTime(task.start_time);
-                const endTime = formatTime(task.end_time);
-                taskItem.innerHTML = `<strong>${task.title}</strong><br>${startTime} - ${endTime}`;
-                taskList.appendChild(taskItem);
-            }
+        const dayTasks = tasks.filter(task => task.date === dateStr);
+        dayTasks.sort((a, b) => a.start_time.localeCompare(b.start_time));
+        dayTasks.forEach(task => {
+            const taskItem = document.createElement('li');
+            const startTime = formatTime(task.start_time);
+            const endTime = formatTime(task.end_time);
+            //taskItem.innerHTML = `<strong>${task.title}</strong><br>${startTime} - ${endTime}`;
+            taskItem.innerHTML = `<strong>${task.title}</strong><br>`;
+            taskList.appendChild(taskItem);
         });
         dayCell.appendChild(taskList);
     }
@@ -157,6 +187,7 @@ function openTaskForm(day) {
     document.getElementById('task-start-time').value = '';
     document.getElementById('task-end-time').value = '';
     document.getElementById('task-id').value = '';
+    showAlreadyAddedTasks(taskDate);
     showTaskForm();
 }
 
@@ -178,6 +209,7 @@ function fetchTasks() {
             console.log('Tasks fetched:', data);
             tasks = data.tasks;
             renderCalendar();
+            renderUpcomingTasks();
         })
         .catch(error => console.error('Error fetching tasks:', error));
 }
@@ -237,4 +269,89 @@ function logout() {
             window.location.href = 'login.html';
         })
         .catch(error => console.error('Error logging out:', error));
+}
+
+function renderUpcomingTasks() {
+    const upcomingTasksContainer = document.getElementById('upcoming-tasks');
+    upcomingTasksContainer.innerHTML = '';
+    const now = new Date();
+    const sortedTasks = tasks
+        .filter(task => {
+            const taskStart = new Date(task.date + ' ' + task.start_time);
+            const taskEnd = new Date(task.date + ' ' + task.end_time);
+            return taskStart > now || (taskStart <= now && taskEnd > now);
+        })
+        .sort((a, b) => new Date(a.date + ' ' + a.start_time) - new Date(b.date + ' ' + b.start_time));
+    const startIndex = upcomingTasksPage * tasksPerPage;
+    const endIndex = startIndex + tasksPerPage;
+    const paginatedTasks = sortedTasks.slice(startIndex, endIndex);
+
+    paginatedTasks.forEach(task => {
+        const taskItem = document.createElement('li');
+        const startTime = formatTime(task.start_time);
+        const endTime = formatTime(task.end_time);
+        taskItem.innerHTML = `<p><strong>${task.title}</strong><br>${task.date} ${startTime} - ${endTime}</p>`;
+        
+        // Add delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'X';
+        deleteButton.classList.add('delete-button');
+        deleteButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent triggering the jump to date
+            deleteTask(task.id);
+        });
+        taskItem.appendChild(deleteButton);
+
+        taskItem.addEventListener('click', () => {
+            jumpToTaskDate(task.date);
+        });
+        upcomingTasksContainer.appendChild(taskItem);
+    });
+
+    const paginationControls = document.createElement('div');
+    paginationControls.classList.add('pagination-controls');
+
+    if (upcomingTasksPage > 0) {
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Previous';
+        prevButton.addEventListener('click', () => {
+            upcomingTasksPage--;
+            renderUpcomingTasks();
+        });
+        paginationControls.appendChild(prevButton);
+    }
+
+    if (endIndex < sortedTasks.length) {
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.addEventListener('click', () => {
+            upcomingTasksPage++;
+            renderUpcomingTasks();
+        });
+        paginationControls.appendChild(nextButton);
+    }
+
+    upcomingTasksContainer.appendChild(paginationControls);
+}
+
+function jumpToTaskDate(date) {
+    const [year, month, day] = date.split('-').map(Number);
+    currentYear = year;
+    currentMonth = month - 1;
+    renderCalendar();
+
+    // Calculate the index of the day cell
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const adjustedFirstDay = (firstDay === 0 ? 6 : firstDay - 1);
+    const dayIndex = adjustedFirstDay + day - 1; // Subtract 1 to account for zero-based index
+
+    const dayCell = document.querySelectorAll('.calendar-day')[dayIndex];
+    if (dayCell) {
+        dayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        dayCell.classList.add('selected');
+        if (selectedDayElement) {
+            selectedDayElement.classList.remove('selected');
+        }
+        selectedDayElement = dayCell;
+    }
 }

@@ -13,80 +13,63 @@ body {
     height: 100vh;
 }
 
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    box-sizing: border-box;
+    
+}
+
 .container {
     background: #fff;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+    width: 70%;
     text-align: center;
+    overflow: hidden;
+    margin-right: 20px;
 }
 
-h1 {
+.upcoming-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 25%;
+    text-align: center;
+    overflow: hidden;
+}
+
+h1, h2 {
     color: #4CAF50;
     margin-bottom: 10px;
 }
 
-h2 {
-    color: #333;
+#welcome-message {
+    text-align: center;
+    font-size: 18px;
     margin-bottom: 20px;
+    color: #333;
 }
 
-.input-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-}
-
-.input-group i {
-    margin-right: 5px;
-}
-
-form button {
-    width: 100%;
-    padding: 10px;
-    background: #4CAF50;
+#logout-button {
+    background: #ff4d4d;
     color: #fff;
     border: none;
+    padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s;
+    display: block;
+    margin: 0 auto 20px;
 }
 
-form button:hover {
-    background: #45a049;
-}
-
-p {
-    margin-top: 20px;
-}
-
-p a {
-    color: #4CAF50;
-    text-decoration: none;
-}
-
-p a:hover {
-    text-decoration: underline;
-}
-
-/* Additional styles for the main page */
-.main-container {
-    max-width: 800px;
+#logout-button:hover {
+    background: #ff1a1a;
 }
 
 #calendar-controls {
@@ -125,6 +108,13 @@ p a:hover {
     box-sizing: border-box;
 }
 
+.calendar-day-of-week {
+    font-weight: bold;
+    background: #e0e0e0;
+    padding: 10px;
+    border-radius: 4px;
+}
+
 .calendar-day {
     background: #f9f9f9;
     border: 1px solid #ddd;
@@ -133,6 +123,9 @@ p a:hover {
     text-align: center;
     cursor: pointer;
     transition: background 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .calendar-day.today {
@@ -143,6 +136,26 @@ p a:hover {
 .calendar-day.selected {
     background: #ffeb3b;
     color: #333;
+}
+
+.calendar-day.holiday {
+    background: #ffebee;
+    border-color: #f44336;
+    color: #f44336;
+}
+
+.task-item {
+    background: #e0f7fa;
+    border: 1px solid #00acc1;
+    border-radius: 4px;
+    padding: 5px;
+    margin-top: 5px;
+    text-align: left;
+}
+
+.task-item strong {
+    display: block;
+    font-weight: 700;
 }
 
 #task-form {
@@ -188,18 +201,47 @@ p a:hover {
     background: #45a049;
 }
 
-#logout-button {
-    background: #ff4d4d;
+#upcoming-tasks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#upcoming-tasks li {
+    background: #e0f7fa;
+    border: 1px solid #00acc1;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.pagination-controls button {
+    background: #4CAF50;
     color: #fff;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s;
-    display: block;
-    margin: 0 auto 20px;
 }
 
-#logout-button:hover {
-    background: #ff1a1a;
+.pagination-controls button:hover {
+    background: #45a049;
+}
+
+.delete-button {
+    color: #ff4d4d;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-left: 5px;
 }

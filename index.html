@@ -7,31 +7,37 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="container main-container">
-        <h1>Schedule Manager</h1>
-        <div id="welcome-message"></div>
-        <button id="logout-button">Logout</button>
-        <div id="calendar-controls">
-            <button id="prev-year"><<</button>
-            <button id="prev-month"><</button>
-            <span id="calendar-title"></span>
-            <button id="next-month">></button>
-            <button id="next-year">>></button>
+    <div class="main-container">
+        <div class="container">
+            <h1>Schedule Manager</h1>
+            <div id="welcome-message"></div>
+            <button id="logout-button">Logout</button>
+            <div id="calendar-controls">
+                <button id="prev-year"><<</button>
+                <button id="prev-month"><</button>
+                <span id="calendar-title"></span>
+                <button id="next-month">></button>
+                <button id="next-year">>></button>
+            </div>
+            <div id="calendar"></div>
+            <form id="task-form" class="hidden">
+                <input type="hidden" id="task-id">
+                <input type="hidden" id="task-date">
+                <label for="task-title">Title:</label>
+                <input type="text" id="task-title" required>
+                <label for="task-desc">Description:</label>
+                <textarea id="task-desc" required></textarea>
+                <label for="task-start-time">Start Time:</label>
+                <input type="time" id="task-start-time" required>
+                <label for="task-end-time">End Time:</label>
+                <input type="time" id="task-end-time" required>
+                <button type="submit">Add Task</button>
+            </form>
         </div>
-        <div id="calendar"></div>
-        <form id="task-form" class="hidden">
-            <input type="hidden" id="task-id">
-            <input type="hidden" id="task-date">
-            <label for="task-title">Title:</label>
-            <input type="text" id="task-title" required>
-            <label for="task-desc">Description:</label>
-            <textarea id="task-desc" required></textarea>
-            <label for="task-start-time">Start Time:</label>
-            <input type="time" id="task-start-time" required>
-            <label for="task-end-time">End Time:</label>
-            <input type="time" id="task-end-time" required>
-            <button type="submit">Add Task</button>
-        </form>
+        <div class="upcoming-container">
+            <h2>Upcoming Schedule</h2>
+            <ul id="upcoming-tasks"></ul>
+        </div>
     </div>
     <script src="js/script.js"></script>
 </body>
